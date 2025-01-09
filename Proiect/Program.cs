@@ -27,6 +27,7 @@ class Program
                     serviceAuto.Adaugare_Utilizator();
                     break;
                 case "2":
+                    serviceAuto.Logare_Utilizator();
                     break;
                 case "3":
                     break;
