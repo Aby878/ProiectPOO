@@ -45,7 +45,7 @@ public class ServiceAuto
 
         Utilizator utilizatorNou = new Utilizator(cod, name, email, parola, rol);
         utilizatori.Add(utilizatorNou);
-        _console.WriteLine($"Utilizator {rol} adăugat cu succes! Cod unic: {cod}");
+        _console.WriteLine($"Utilizator {rol} cu numele {name} adăugat cu succes! Cod unic: {cod}");
     }
     
      public void Logare_Utilizator()
@@ -125,21 +125,15 @@ public class ServiceAuto
                     break;
 
                 case "3":
-                    int avb = _console.ReadInt("Introduceti AVB-ul comenzii de piese pe care doriti sa o finalizati:");
                     FinalizareCereriPiese();
                     break;
 
                 case "4":
-                    string numeClient = _console.ReadLine("Introduceti numele clientului:");
-                    string numarMasina = _console.ReadLine("Introduceti numarul masinii:");
-                    string descriereProblema = _console.ReadLine("Descrieti problema:");
                     AdaugaCerereRezolvare();
                     break;
 
                 case "5":
-                    string numeMecanic = _console.ReadLine("Introduceti numele mecanicului:");
-                    string detaliiPiese = _console.ReadLine("Introduceti detaliile piesei:");
-                    int idCerereRezolvare = _console.ReadInt("Introduceti ID-ul cererii de rezolvare asociate:");
+                   
                     AdaugaCererePiese();
                     break;
 
@@ -151,6 +145,8 @@ public class ServiceAuto
                     _console.WriteLine("Optiune invalida! Va rugam sa alegeti din nou.");
                     break;
             }
+            _console.WriteLine(_meniu_administrator);
+            comanda=_console.ReadLine("Introduceti optiunea:");
         }
 
     }
@@ -185,7 +181,7 @@ public class ServiceAuto
     
     public void VizualizareCereriRezolvare()
     {
-        _console.WriteLine("Listă cereri de rezolvare:");
+        _console.WriteLine("Lista cereri de rezolvare:");
 
         if (!cereriRezolvare.Any())
         {
@@ -196,13 +192,13 @@ public class ServiceAuto
         foreach (var cerere in cereriRezolvare)
         {
             _console.WriteLine(
-                $"ID: {cerere.Id}, Client: {cerere.NumeClient},Mașină: {cerere.NumarMasina}, Status: {cerere.Status}, Descriere: {cerere.DescriereProblema}");
+                $"ID: {cerere.Id}, Client: {cerere.NumeClient},Masina: {cerere.NumarMasina}, Status: {cerere.Status}, Descriere: {cerere.DescriereProblema}");
         }
     }
 
     public void AdaugaCererePiese()
     {
-        _console.WriteLine("Adăugare cerere de piese");
+        _console.WriteLine("Adaugare cerere de piese");
         
         string numeMecanic = _console.ReadLine("Introduceti numele mecanicului:");
         string detaliiPiese = _console.ReadLine("Introduceti detaliile piesei:");
@@ -225,11 +221,11 @@ public class ServiceAuto
 
     public void VizualizareCereriPiese()
     {
-        _console.WriteLine("Listă cereri de piese:");
+        _console.WriteLine("Lista cereri de piese:");
         
         if (!cereriPiese.Any())
         {
-            _console.WriteLine("Nu există cereri de piese inregistrate.");
+            _console.WriteLine("Nu exista cereri de piese inregistrate.");
             return;
         }
 
@@ -243,7 +239,7 @@ public class ServiceAuto
     {
         _console.WriteLine("Finalizare cerere de piese");
         
-        int avb = _console.ReadInt("Introduceți AVB-ul cererii de piese pe care doriti sa o introduceti:");
+        int avb = _console.ReadInt("Introduceti AVB-ul cererii de piese pe care doriti sa o finalizati:");
         
         var cerere = cereriPiese.Find(c => c.AVB == avb);
         if (cerere == null)
@@ -313,14 +309,19 @@ public class ServiceAuto
         }
 
         string numeMecanic = _console.ReadLine("Introduceti numele mecanicului care preia cererea:");
-        var mecanic = utilizatori.OfType<Mecanic>().FirstOrDefault(m => m.nume == numeMecanic);
+        var utilizator = utilizatori.OfType<Utilizator>().FirstOrDefault(u => 
+            u.tip_utilizator != null &&
+            u.tip_utilizator == "mecanic" && 
+            u.nume != null &&
+            string.Equals(u.nume, numeMecanic.Trim(), StringComparison.OrdinalIgnoreCase) 
+        );
 
-        if (mecanic == null)
+        if (utilizator == null)
         {
-            _console.WriteLine("Mecanicul specificat nu exista.");
+            _console.WriteLine("Mecanicul specificat nu  exista.");
             return;
         }
-
+        var mecanic = new Mecanic(utilizator.cod_munca,utilizator.nume,utilizator.email,utilizator.parola,utilizator.tip_utilizator);
         cerere.AsigneazaMecanic(mecanic);
         _console.WriteLine($"Cererea ID {cerere.Id} a fost preluata de mecanicul {mecanic.nume}.");
     }
@@ -330,7 +331,7 @@ public class ServiceAuto
         int idCerere = _console.ReadInt("Introduceti ID-ul cererii de investigat:");
         var cerere = cereriRezolvare.FirstOrDefault(c => c.Id == idCerere);
 
-        if (cerere == null || cerere.Status != StatusCerere.Investigare)
+        if (cerere == null || cerere.Status != StatusCerere.InPreluare)
         {
             _console.WriteLine("Cererea specificata nu este valida sau nu este in investigare.");
             return;
@@ -392,9 +393,15 @@ public class ServiceAuto
             _console.WriteLine("Cererea nu poate fi rezolvata deoarece inca se asteapta piesele necesare.");
             return;
         }
-
+    
         string numeMecanic = _console.ReadLine("Introduceti numele mecanicului care rezolva cererea:");
-        var mecanic = utilizatori.OfType<Mecanic>().FirstOrDefault(m => m.nume == numeMecanic);
+
+        var mecanic = utilizatori.OfType<Utilizator>().FirstOrDefault(u => 
+                u.tip_utilizator != null &&
+                u.tip_utilizator == "mecanic" && 
+                u.nume != null &&
+                string.Equals(u.nume, numeMecanic.Trim(), StringComparison.OrdinalIgnoreCase) 
+        );
 
         if (mecanic == null)
         {
