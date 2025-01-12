@@ -7,7 +7,8 @@ class Program
     static void Main(string[] args)
     {
         Console.WriteLine("Bine ati venit in meniul aplicatiei!");
-        ServiceAuto serviceAuto = new ServiceAuto();
+        ConsoleWrapper consoleWrapper = new ConsoleWrapper();
+        ServiceAuto serviceAuto = new ServiceAuto(consoleWrapper);
 
         string meniu_aplicatie = @"
         In aceasta aplicatie avem urmatoarele posibilitati:

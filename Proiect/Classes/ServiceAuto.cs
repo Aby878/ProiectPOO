@@ -279,19 +279,130 @@ public class ServiceAuto
             switch (comanda)
             {
                 case "1":
+                    PreluareCerereRezolvare();
                     break;
                 case "2":
+                    InvestigareProblema();
                     break;
                 case "3":
+                    CreareCererePiese();
                     break;
                 case "4":
+                    RezolvareProblemaMasina();
                     break;
                 case "0":
+                    _console.WriteLine("Iesire din meniu mecanic.");
                     break; 
                 default:
+                    _console.WriteLine("Optiune invalida!Va rugam sa alegeti din nou.");
                     break;
             }
+            _console.WriteLine(_meniu_mecanic);
+            comanda=_console.ReadLine("Introduceti optiunea:");
         }
         
+    }
+     public void PreluareCerereRezolvare()
+    {
+        var cerere = cereriRezolvare.FirstOrDefault(c => c.Status == StatusCerere.InPreluare);
+
+        if (cerere == null)
+        {
+            _console.WriteLine("Nu exista cereri de rezolvare in asteptare.");
+            return;
+        }
+
+        string numeMecanic = _console.ReadLine("Introduceti numele mecanicului care preia cererea:");
+        var mecanic = utilizatori.OfType<Mecanic>().FirstOrDefault(m => m.nume == numeMecanic);
+
+        if (mecanic == null)
+        {
+            _console.WriteLine("Mecanicul specificat nu exista.");
+            return;
+        }
+
+        cerere.AsigneazaMecanic(mecanic);
+        _console.WriteLine($"Cererea ID {cerere.Id} a fost preluata de mecanicul {mecanic.nume}.");
+    }
+
+    public void InvestigareProblema()
+    {
+        int idCerere = _console.ReadInt("Introduceti ID-ul cererii de investigat:");
+        var cerere = cereriRezolvare.FirstOrDefault(c => c.Id == idCerere);
+
+        if (cerere == null || cerere.Status != StatusCerere.Investigare)
+        {
+            _console.WriteLine("Cererea specificata nu este valida sau nu este in investigare.");
+            return;
+        }
+
+        _console.WriteLine("Se decide daca problema poate fi rezolvata cu sau fara piese auto.");
+        string decizie = _console.ReadLine("Scrieti 'da' daca sunt necesare piese auto sau 'nu' daca problema poate fi rezolvata direct:").ToLower();
+
+        if (decizie == "da")
+        {
+            cerere.SchimbaStatus(StatusCerere.AsteptarePiese);
+            _console.WriteLine($"Cererea ID {cerere.Id} necesita piese auto si a fost marcata ca 'Asteptare Piese'.");
+        }
+        else if (decizie == "nu")
+        {
+            cerere.SchimbaStatus(StatusCerere.Investigare);
+            _console.WriteLine($"Cererea ID {cerere.Id} poate fi rezolvata direct.");
+        }
+        else
+        {
+            _console.WriteLine("Optiune invalida. Reincercati investigarea.");
+        }
+    }
+
+    public void CreareCererePiese()
+    {
+        int idCerereRezolvare = _console.ReadInt("Introduceti ID-ul cererii de rezolvare asociate:");
+        var cerereRezolvare = cereriRezolvare.FirstOrDefault(c => c.Id == idCerereRezolvare);
+
+        if (cerereRezolvare == null || cerereRezolvare.Status != StatusCerere.AsteptarePiese)
+        {
+            _console.WriteLine("Cererea de rezolvare nu exista sau nu necesita piese auto.");
+            return;
+        }
+
+        string numeMecanic = _console.ReadLine("Introduceti numele mecanicului care initiaza cererea de piese:");
+        string detaliiPiese = _console.ReadLine("Introduceti detaliile pieselor necesare:");
+
+        CererePiese cererePiese = new CererePiese(idCounterPiese++, numeMecanic, detaliiPiese, cerereRezolvare);
+        cereriPiese.Add(cererePiese);
+
+        cerereRezolvare.SchimbaStatus(StatusCerere.AsteptarePiese);
+        _console.WriteLine($"Cererea de piese a fost creata cu succes. AVB: {cererePiese.AVB}");
+    }
+
+    public void RezolvareProblemaMasina()
+    {
+        int idCerere = _console.ReadInt("Introduceti ID-ul cererii de rezolvare pentru masina:");
+        var cerere = cereriRezolvare.FirstOrDefault(c => c.Id == idCerere);
+
+        if (cerere == null)
+        {
+            _console.WriteLine("Cererea specificata nu exista.");
+            return;
+        }
+
+        if (cerere.Status == StatusCerere.AsteptarePiese)
+        {
+            _console.WriteLine("Cererea nu poate fi rezolvata deoarece inca se asteapta piesele necesare.");
+            return;
+        }
+
+        string numeMecanic = _console.ReadLine("Introduceti numele mecanicului care rezolva cererea:");
+        var mecanic = utilizatori.OfType<Mecanic>().FirstOrDefault(m => m.nume == numeMecanic);
+
+        if (mecanic == null)
+        {
+            _console.WriteLine("Mecanicul specificat nu exista.");
+            return;
+        }
+
+        cerere.SchimbaStatus(StatusCerere.Finalizat);
+        _console.WriteLine($"Cererea ID {cerere.Id} a fost rezolvata cu succes de mecanicul {mecanic.nume}.");
     }
 }
