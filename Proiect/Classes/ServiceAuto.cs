@@ -266,7 +266,7 @@ public class ServiceAuto
         }
     }
 
-    public void AdaugaCererePiese()
+    public void AdaugaCererePiese() 
     {
         _console.WriteLine("Adaugare cerere de piese");
         
@@ -409,7 +409,8 @@ public class ServiceAuto
             _console.WriteLine("Cererea specificata nu este valida sau nu este in investigare.");
             return;
         }
-
+        
+        _console.WriteLine($"Problema: {cerere.DescriereProblema}");
         _console.WriteLine("Se decide daca problema poate fi rezolvata cu sau fara piese auto.");
         string decizie = _console.ReadLine("Scrieti 'da' daca sunt necesare piese auto sau 'nu' daca problema poate fi rezolvata direct:").ToLower();
 
@@ -442,6 +443,18 @@ public class ServiceAuto
         }
 
         string numeMecanic = _console.ReadLine("Introduceti numele mecanicului care initiaza cererea de piese:");
+        var utilizator = utilizatori.OfType<Utilizator>().FirstOrDefault(u => 
+            u.tip_utilizator != null &&
+            u.tip_utilizator == "mecanic" && 
+            u.nume != null &&
+            string.Equals(u.nume, numeMecanic.Trim(), StringComparison.OrdinalIgnoreCase) 
+        );
+        if (utilizator == null)
+        {
+            _console.WriteLine("Mecanicul specificat nu  exista.");
+            return;
+            
+        }
         string detaliiPiese = _console.ReadLine("Introduceti detaliile pieselor necesare:");
 
         CererePiese cererePiese = new CererePiese(idCounterPiese++, numeMecanic, detaliiPiese, cerereRezolvare);
