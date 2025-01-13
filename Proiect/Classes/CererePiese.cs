@@ -6,6 +6,7 @@ public class CererePiese
     public string NumeMecanic { get; set; }
     public StatusPiese Status { get; set; } 
     public string DetaliiPiese { get; set; }
+    public int CerereAsociataId { get; set; }
     public CerereRezolvare CerereAsociata { get; set; }
         
     public CererePiese(int avb, string numeMecanic, string detaliiPiese, CerereRezolvare cerereAsociata)
@@ -15,6 +16,7 @@ public class CererePiese
         DetaliiPiese = detaliiPiese;
         CerereAsociata = cerereAsociata;
         Status = StatusPiese.InAsteptare;
+        CerereAsociataId = cerereAsociata.Id;
     }
         
     public void SchimbaStatus(StatusPiese nouStatus)

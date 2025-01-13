@@ -40,6 +40,7 @@ class Program
             command = Console.ReadLine();
                         
         }
+        serviceAuto.SaveDataToFile();
 
     }
 }

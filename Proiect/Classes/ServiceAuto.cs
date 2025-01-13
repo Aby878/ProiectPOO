@@ -1,3 +1,7 @@
+using System.Text.Json;    
+using System.IO;           
+using System.Text.RegularExpressions; 
+
 namespace Proiect.Classes;
 
 public class ServiceAuto
@@ -9,9 +13,73 @@ public class ServiceAuto
     private int idCounterRezolvare = 1;
     private int idCounterPiese = 1;
     private readonly ConsoleWrapper _console;
+    private string filePath = "data.json";
     public ServiceAuto(ConsoleWrapper console)
     {
         _console = console;
+        LoadDataFromFile();
+    }
+    public void SaveDataToFile()
+    {
+        try
+        {
+            ServiceAutoData data = new ServiceAutoData
+            {
+                Cod = this.cod,
+                IdCounterRezolvare = this.idCounterRezolvare,
+                IdCounterPiese = this.idCounterPiese,
+                Utilizatori = this.utilizatori,
+                CereriRezolvare = this.cereriRezolvare,
+                CereriPiese = this.cereriPiese
+            };
+
+            var options = new JsonSerializerOptions
+            {
+                WriteIndented = true
+            };
+            string json = JsonSerializer.Serialize(data, options);
+            File.WriteAllText(filePath, json);
+
+            _console.WriteLine("Datele au fost salvate cu succes!"); 
+        }
+        catch (Exception ex)
+        {
+            _console.WriteLine($"Eroare la salvarea datelor în fișier: {ex.Message}");
+        }
+    }
+    public void LoadDataFromFile()
+    {
+        if (!File.Exists(filePath))
+        {
+            return;
+        }
+
+        try
+        {
+            string json = File.ReadAllText(filePath);
+            ServiceAutoData data = JsonSerializer.Deserialize<ServiceAutoData>(json);
+
+            this.cod = data.Cod;
+            this.idCounterRezolvare = data.IdCounterRezolvare;
+            this.idCounterPiese = data.IdCounterPiese;
+            this.utilizatori = data.Utilizatori ?? new List<Utilizator>();
+            this.cereriRezolvare = data.CereriRezolvare ?? new List<CerereRezolvare>();
+            this.cereriPiese = data.CereriPiese ?? new List<CererePiese>();
+
+          
+            foreach (var cp in this.cereriPiese)
+            {
+                
+                var found = cereriRezolvare.FirstOrDefault(cr => cr.Id == cp.CerereAsociataId);
+                cp.CerereAsociata = found;
+            }
+
+            _console.WriteLine("Datele au fost încărcate din fișier cu succes!");
+        }
+        catch (Exception ex)
+        {
+            _console.WriteLine($"Eroare la încărcarea datelor din fișier: {ex.Message}");
+        }
     }
     public void Adaugare_Utilizator()
     {
@@ -46,6 +114,7 @@ public class ServiceAuto
         Utilizator utilizatorNou = new Utilizator(cod, name, email, parola, rol);
         utilizatori.Add(utilizatorNou);
         _console.WriteLine($"Utilizator {rol} cu numele {name} adăugat cu succes! Cod unic: {cod}");
+        SaveDataToFile();
     }
     
      public void Logare_Utilizator()
@@ -175,8 +244,9 @@ public class ServiceAuto
         
         CerereRezolvare cerere = new CerereRezolvare(idCounterRezolvare++, numeClient, numarMasina, descriereProblema);
         cereriRezolvare.Add(cerere);
-
+        
         _console.WriteLine($"Cererea de rezolvare a fost adaugata cu succes. ID cerere: {cerere.Id}");
+        SaveDataToFile();
     }
     
     public void VizualizareCereriRezolvare()
@@ -217,6 +287,7 @@ public class ServiceAuto
         cerereRezolvare.Status = StatusCerere.AsteptarePiese;
         
         _console.WriteLine($"Cererea de piese a fost creata cu succes! AVB: {cererePiese.AVB}");
+        SaveDataToFile();
     }
 
     public void VizualizareCereriPiese()
@@ -252,6 +323,7 @@ public class ServiceAuto
         cerere.CerereAsociata.SchimbaStatus(StatusCerere.Investigare);
 
         Console.WriteLine($"Cererea de piese cu AVB {avb} a fost finalizata.");
+        SaveDataToFile();
     }
     
     private bool ValidareNumarMasina(string numarMasina)
@@ -324,6 +396,7 @@ public class ServiceAuto
         var mecanic = new Mecanic(utilizator.cod_munca,utilizator.nume,utilizator.email,utilizator.parola,utilizator.tip_utilizator);
         cerere.AsigneazaMecanic(mecanic);
         _console.WriteLine($"Cererea ID {cerere.Id} a fost preluata de mecanicul {mecanic.nume}.");
+        SaveDataToFile();
     }
 
     public void InvestigareProblema()
@@ -331,7 +404,7 @@ public class ServiceAuto
         int idCerere = _console.ReadInt("Introduceti ID-ul cererii de investigat:");
         var cerere = cereriRezolvare.FirstOrDefault(c => c.Id == idCerere);
 
-        if (cerere == null || cerere.Status != StatusCerere.InPreluare)
+        if (cerere == null || cerere.Status != StatusCerere.Investigare)
         {
             _console.WriteLine("Cererea specificata nu este valida sau nu este in investigare.");
             return;
@@ -354,6 +427,7 @@ public class ServiceAuto
         {
             _console.WriteLine("Optiune invalida. Reincercati investigarea.");
         }
+        SaveDataToFile();
     }
 
     public void CreareCererePiese()
@@ -375,6 +449,7 @@ public class ServiceAuto
 
         cerereRezolvare.SchimbaStatus(StatusCerere.AsteptarePiese);
         _console.WriteLine($"Cererea de piese a fost creata cu succes. AVB: {cererePiese.AVB}");
+        SaveDataToFile();
     }
 
     public void RezolvareProblemaMasina()
@@ -411,5 +486,6 @@ public class ServiceAuto
 
         cerere.SchimbaStatus(StatusCerere.Finalizat);
         _console.WriteLine($"Cererea ID {cerere.Id} a fost rezolvata cu succes de mecanicul {mecanic.nume}.");
+        SaveDataToFile(); 
     }
 }
