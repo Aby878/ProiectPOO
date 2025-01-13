@@ -7,8 +7,12 @@ public class CerereRezolvare
         public string NumarMasina { get; set; } 
         public string DescriereProblema { get; set; }
         public StatusCerere Status { get; set; } 
-        public Mecanic MecanicResponsabil { get; set; } 
-        
+        public Mecanic MecanicResponsabil { get; set; }
+
+        public CerereRezolvare()
+        {
+            
+        }
         public CerereRezolvare(int id, string numeClient, string numarMasina, string descriereProblema)
         {
             Id = id;

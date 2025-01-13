@@ -13,7 +13,7 @@ public class ServiceAuto
     private int idCounterRezolvare = 1;
     private int idCounterPiese = 1;
     private readonly ConsoleWrapper _console;
-    private string filePath = "data.json";
+    private readonly string filePath = "data.json";
     public ServiceAuto(ConsoleWrapper console)
     {
         _console = console;
@@ -44,7 +44,7 @@ public class ServiceAuto
         }
         catch (Exception ex)
         {
-            _console.WriteLine($"Eroare la salvarea datelor în fișier: {ex.Message}");
+            _console.WriteLine($"Eroare la salvarea datelor în fisier: {ex.Message}");
         }
     }
     public void LoadDataFromFile()
@@ -74,16 +74,16 @@ public class ServiceAuto
                 cp.CerereAsociata = found;
             }
 
-            _console.WriteLine("Datele au fost încărcate din fișier cu succes!");
+            _console.WriteLine("Datele au fost încărcate din fisier cu succes!");
         }
         catch (Exception ex)
         {
-            _console.WriteLine($"Eroare la încărcarea datelor din fișier: {ex.Message}");
+            _console.WriteLine($"Eroare la incarcarea datelor din fisier: {ex.Message}");
         }
     }
     public void Adaugare_Utilizator()
     {
-        _console.WriteLine("Adăugare utilizator nou");
+        _console.WriteLine("Adaugare utilizator nou");
         
         cod++;
         string rol;
@@ -113,7 +113,7 @@ public class ServiceAuto
 
         Utilizator utilizatorNou = new Utilizator(cod, name, email, parola, rol);
         utilizatori.Add(utilizatorNou);
-        _console.WriteLine($"Utilizator {rol} cu numele {name} adăugat cu succes! Cod unic: {cod}");
+        _console.WriteLine($"Utilizator {rol} cu numele {name} adaugat cu succes! Cod unic: {cod}");
         SaveDataToFile();
     }
     

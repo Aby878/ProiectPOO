@@ -1,4 +1,12 @@
-﻿using Proiect.Classes;
+﻿using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Text.Json;
+using System.Text.Json.Serialization;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using Proiect.Classes;
 
 namespace Proiect;
 
@@ -6,9 +14,18 @@ class Program
 {
     static void Main(string[] args)
     {
+        var host = Host.CreateDefaultBuilder(args)
+            .ConfigureServices((context, services) =>
+            {
+                services.AddTransient<ConsoleWrapper>();
+                services.AddTransient<ServiceAuto>();
+            })
+            .Build();
+
+        var consoleWrapper = host.Services.GetRequiredService<ConsoleWrapper>();
+        var serviceAuto = host.Services.GetRequiredService<ServiceAuto>();
         Console.WriteLine("Bine ati venit in meniul aplicatiei!");
-        ConsoleWrapper consoleWrapper = new ConsoleWrapper();
-        ServiceAuto serviceAuto = new ServiceAuto(consoleWrapper);
+       
 
         string meniu_aplicatie = @"
         In aceasta aplicatie avem urmatoarele posibilitati:
@@ -17,7 +34,7 @@ class Program
         3. Iesire     
         ";
 
-        Console.WriteLine(meniu_aplicatie);
+        consoleWrapper.WriteLine(meniu_aplicatie);
         string command = Console.ReadLine();
 
         while (command != "3")
@@ -36,7 +53,7 @@ class Program
                     break;
             }
 
-            Console.WriteLine(meniu_aplicatie);
+            consoleWrapper.WriteLine(meniu_aplicatie);
             command = Console.ReadLine();
                         
         }

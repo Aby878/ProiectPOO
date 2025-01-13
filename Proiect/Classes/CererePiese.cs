@@ -1,3 +1,5 @@
+using System.Text.Json.Serialization;
+
 namespace Proiect.Classes;
 
 public class CererePiese
@@ -7,8 +9,13 @@ public class CererePiese
     public StatusPiese Status { get; set; } 
     public string DetaliiPiese { get; set; }
     public int CerereAsociataId { get; set; }
+    [JsonIgnore]
     public CerereRezolvare CerereAsociata { get; set; }
+
+    public CererePiese()
+    {
         
+    }
     public CererePiese(int avb, string numeMecanic, string detaliiPiese, CerereRezolvare cerereAsociata)
     {
         AVB = avb;

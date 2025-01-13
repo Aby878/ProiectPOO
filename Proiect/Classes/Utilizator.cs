@@ -8,6 +8,10 @@ public class Utilizator
         public string parola{get;set;}
         public string tip_utilizator{get;set;}
 
+        public Utilizator()
+        {
+            
+        }
         public Utilizator(int CodMunca, string Nume, string Email, string Parola, string TipUtilizator)
         {
             cod_munca = CodMunca;
